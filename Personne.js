@@ -1,56 +1,42 @@
 'use strict'
 
-class Personne {
-	constructor(ps_orientationDeVie){
-		this.as_orientationDeVie = ps_orientationDeVie
-		this.an_pouvoir = 100
-		this.an_bonheur = 100
-		this.me = this
+class Personne extends SCCube{
+	constructor(pObj_orientationDeVie){
+		super()
+		
+		this.identite = Symbol()
+		this.aObj_orientationDeVie = pObj_orientationDeVie
+		this.an_bonheur = this.defineProperty(100, ['identite', 'pouvoir', 'orientation'], 'bonheurSubi')
+		this.an_pouvoir = this.defineProperty(100, ['identite', 'pouvoir', 'orientation'], 'pouvoirSubi')
+		
+		this.setComportement(0,
+			SC.generate(SCEVT('identite'), this.identite, SC.forever),
+			SC.generate(SCEVT('orientation'), this.aObj_orientationDeVie, SC.forever),
+			SC.generate(SCEVT('pouvoir'), this.an_pouvoir.valeur, SC.forever),
+			SC.generate(SCEVT('bonheur'), this.an_bonheur.valeur, SC.forever),
+			
+			SC.reactProperty(this.an_bonheur, SC.forever),
+			SC.reactProperty(this.an_pouvoir, SC.forever),
+		)
 	}
-	agit(pPers_autre, pn_quantite, pn_proportionPouvoirAutre, pn_proportionBonheurSoi, pn_proportionBonheurAutre){
-		console.assert( Math.abs(pn_quantite) <= 0.1 && pn_quantite >= 0 )
-		console.assert( Math.abs(pn_proportionPouvoirAutre) < 30 )
-		console.assert( Math.abs(pn_proportionBonheurSoi) < 1 )
-		console.assert( Math.abs(pn_proportionBonheurAutre) < 3 )
-		const ln_quantite = this.an_pouvoir*pn_quantite
-		this.an_pouvoir -= ln_quantite
-		pPers_autre.an_pouvoir += Math.round(ln_quantite*pn_proportionPouvoirAutre)
-		this.an_bonheur += Math.round(ln_quantite*pn_proportionBonheurSoi)
-		pPers_autre.an_bonheur += Math.round(ln_quantite*pn_proportionBonheurAutre)
-	}
-	reagit(pArray_allEvt){
-		for(let persAutre of pArray_allEvt[gScEvt_jExiste]){
-			// console.log('+++')
-			this[this.as_orientationDeVie](persAutre, 0.1)
+	bonheurSubi(pn_bonheurDepart, pArray_identiteRecue, pArray_pouvoirRecue, pArray_orientationRecue) {
+		let tmpBonheur = pn_bonheurDepart
+		for(let i in pArray_identiteRecue ){
+			if(this.identite != pArray_identiteRecue[i]) {
+				tmpBonheur += Math.round(pArray_pouvoirRecue[i]*0.1*pArray_orientationRecue[i].bonheurAutre)
+			}
 		}
+		tmpBonheur += Math.round(this.an_pouvoir.val()*0.1*this.aObj_orientationDeVie.bonheurSoi)
+		return tmpBonheur
 	}
-	rendHeureux(pPers_autre, pn_quantite){
-		this.agit(pPers_autre, pn_quantite, 0, 0, 2)
+	pouvoirSubi(pn_pouvoirDepart, pArray_identiteRecue, pArray_pouvoirRecue, pArray_orientationRecue) {
+		let tmpPouvoir = pn_pouvoirDepart
+		for(let i in pArray_identiteRecue ){
+			if(this.identite != pArray_identiteRecue[i]) {
+				tmpPouvoir += Math.round(pArray_pouvoirRecue[i]*0.1*pArray_orientationRecue[i].pouvoirAutre)
+			}
+		}
+		tmpPouvoir += Math.round(this.an_pouvoir.val()*0.1*this.aObj_orientationDeVie.pouvoirSoi)
+		return tmpPouvoir
 	}
-	rendMalheureux(pPers_autre, pn_quantite){
-		this.agit(pPers_autre, pn_quantite, 0, 0, -2)
-	}
-	renforce(pPers_autre, pn_quantite){
-		this.agit(pPers_autre, pn_quantite, 29, 0, 0)
-	}
-}
-
-const gScProg_personne = SC.par(
-	SC.generateWrapped(gScEvt_jExiste, 'me', SC.forever),
-	SC.actionOn(gScEvt_jExiste, 'reagit', undefined, SC.forever)
-)
-
-const NOMBRE_PERSONNE_REND_HEUREUX = 15
-const NOMBRE_PERSONNE_REND_MALHEUREUX = 5
-const NOMBRE_PERSONNE_REND_RENFORCE = 5
-
-const gArrayCube_personne = []
-for(let i = 0; i<NOMBRE_PERSONNE_REND_HEUREUX; i++){
-	gArrayCube_personne.push( SC.cube(new Personne('rendHeureux'), gScProg_personne) )
-}
-for(let i = 0; i<NOMBRE_PERSONNE_REND_MALHEUREUX; i++){
-	gArrayCube_personne.push( SC.cube(new Personne('rendMalheureux'), gScProg_personne) )
-}
-for(let i = 0; i<NOMBRE_PERSONNE_REND_RENFORCE; i++){
-	gArrayCube_personne.push( SC.cube(new Personne('renforce'), gScProg_personne) )
 }

@@ -89,6 +89,7 @@ SC_CubeBinding.prototype = {
 		}
       if(undefined === tgt){
         //console.log("target not found");
+		  console.log("target not found", this.cube, this.name)
         throw "target not found";
         //return this;
         }
@@ -2094,9 +2095,9 @@ SC_Pause.prototype = {
   constructor : SC_Pause
   , bindTo : function(engine, parbranch, seq, masterSeq, path, cube){
       var binder = _SC._b(cube);
-      console.log("bindTo this.times = ", this.times);
+      // console.log("bindTo this.times = ", this.times);
       var bound_times = binder(this.times);
-      console.log("bindTo bound_times = ", bound_times);
+      // console.log("bindTo bound_times = ", bound_times);
       var copy = null;
       if(bound_times < 0){
         return SC_PauseForever;
@@ -3993,6 +3994,8 @@ SC_Machine.prototype =
         }
       }
   , react : function(){
+	  // if(this.instantNumber > 10) return
+	  // console.log('------instantNumber', this.instantNumber)
       var res = SC_Instruction_State.STOP;
       var tmp = this.pending;
       this.pending=[];
