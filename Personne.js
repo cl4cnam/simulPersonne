@@ -2,22 +2,19 @@
 
 class Personne extends SCCube{
 	constructor(pObj_orientationDeVie){
-		super()
-		
-		this.identite = Symbol()
-		this.aObj_orientationDeVie = pObj_orientationDeVie
-		this.an_bonheur = this.defineProperty(100, ['identite', 'pouvoir', 'orientation'], 'bonheurSubi')
-		this.an_pouvoir = this.defineProperty(100, ['identite', 'pouvoir', 'orientation'], 'pouvoirSubi')
-		
-		this.setComportement(0,
-			SC.generate(SCEVT('identite'), this.identite, SC.forever),
-			SC.generate(SCEVT('orientation'), this.aObj_orientationDeVie, SC.forever),
-			SC.generate(SCEVT('pouvoir'), this.an_pouvoir.valeur, SC.forever),
-			SC.generate(SCEVT('bonheur'), this.an_bonheur.valeur, SC.forever),
-			
-			SC.reactProperty(this.an_bonheur, SC.forever),
-			SC.reactProperty(this.an_pouvoir, SC.forever),
-		)
+		super({$publicConst_orientation: [pObj_orientationDeVie]})
+	}
+	$publicConst_identite(){
+		return Symbol()
+	}
+	$publicConst_orientation(pObj_orientationDeVie){
+		return pObj_orientationDeVie
+	}
+	$publicProperty_bonheur(){
+		return [100, ['identite', 'pouvoir', 'orientation'], 'bonheurSubi']
+	}
+	$publicProperty_pouvoir(){
+		return [100, ['identite', 'pouvoir', 'orientation'], 'pouvoirSubi']
 	}
 	bonheurSubi(pn_bonheurDepart, pArray_identiteRecue, pArray_pouvoirRecue, pArray_orientationRecue) {
 		let tmpBonheur = pn_bonheurDepart
@@ -26,7 +23,7 @@ class Personne extends SCCube{
 				tmpBonheur += Math.round(pArray_pouvoirRecue[i]*0.1*pArray_orientationRecue[i].bonheurAutre)
 			}
 		}
-		tmpBonheur += Math.round(this.an_pouvoir.val()*0.1*this.aObj_orientationDeVie.bonheurSoi)
+		tmpBonheur += Math.round(this.pouvoir.val()*0.1*this.orientation.bonheurSoi)
 		return tmpBonheur
 	}
 	pouvoirSubi(pn_pouvoirDepart, pArray_identiteRecue, pArray_pouvoirRecue, pArray_orientationRecue) {
@@ -36,7 +33,7 @@ class Personne extends SCCube{
 				tmpPouvoir += Math.round(pArray_pouvoirRecue[i]*0.1*pArray_orientationRecue[i].pouvoirAutre)
 			}
 		}
-		tmpPouvoir += Math.round(this.an_pouvoir.val()*0.1*this.aObj_orientationDeVie.pouvoirSoi)
+		tmpPouvoir += Math.round(this.pouvoir.val()*0.1*this.orientation.pouvoirSoi)
 		return tmpPouvoir
 	}
 }
