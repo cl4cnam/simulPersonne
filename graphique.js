@@ -13,10 +13,7 @@ class Graphique extends SCCube {
 		this.aCtx = this.aCanvas.getContext('2d')
 	}
 	$property_aInstant(){
-		return [0, ['next'], (val, valEnvoyee) => val+1]
-	}
-	$_instantSuivant(){
-		return SC.generate(SCEVT('next'), 0, SC.forever)
+		return [0, [], (val) => val+1]
 	}
 	dessinPoint(ps_color, x, y){
 		this.aCtx.fillStyle = ps_color
